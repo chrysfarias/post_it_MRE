@@ -25,8 +25,7 @@ function runApp() {
 		baseDir: resolvePath(__dirname, '../public')
 	});
 
-	// Handle new application sessions
-	server.adapter.onConnection(context => new App(context));
+	server.adapter.onConnection((context, params) => new App(context, params));
 }
 
 // Check whether code is running in a debuggable watched filesystem

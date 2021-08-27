@@ -19,7 +19,7 @@ export default class PostItApp {
 	private container: MRE.Actor = null;
 	private assets: MRE.AssetContainer;
 
-	constructor(private context: MRE.Context) {
+	constructor(private context: MRE.Context, private params: MRE.ParameterSet) {
 		this.context.onStarted(() => this.started());
 	}
 
@@ -84,8 +84,8 @@ export default class PostItApp {
 		});
 		// Create menu button
 		const postitMesh = this.assets.createBoxMesh('button', postSizeX, postSizeY, 0.01);
-
-		const rawResponse = await fetch(`${api}/post`, {
+		const section = this.params.section;
+		const rawResponse = await fetch(`${api}/post?section=${section}`, {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
