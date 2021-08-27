@@ -6,7 +6,7 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
 import fetch from 'cross-fetch';
 
-const api = "http://localhost:3000/api";
+const api = "https://postitaltspace.herokuapp.com/api";
 const postSizeX = 0.3;
 const postSizeY = 0.3;
 const canvasSizeX = 500;
