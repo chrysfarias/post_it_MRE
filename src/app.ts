@@ -4,15 +4,14 @@
  */
 
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
+import { TextFontFamily } from '@microsoft/mixed-reality-extension-sdk';
 import fetch from 'cross-fetch';
 
 const api = "https://postitaltspace.herokuapp.com/api";
-const postSizeX = 0.3;
-const postSizeY = 0.3;
-const canvasSizeX = 500;
-const canvasSizeY = 400;
-const containerSizeX = 1.5;
-const containerSizeY = 1;
+//const api = "http://localhost:3000/api";
+const canvasSizeX = 1000;
+const canvasSizeY = 500;
+const resolution = 600;
 
 export default class PostItApp {
 	private refreshButton: MRE.Actor = null;
@@ -26,20 +25,20 @@ export default class PostItApp {
 	/**
 	 * Once the context is "started", initialize the app.
 	 */
-	private started() {
+	private async started() {
 		// set up somewhere to store loaded assets (meshes, textures, animations, gltfs, etc.)
 		this.assets = new MRE.AssetContainer(this.context);
 
 		//RefreshButton
-		const buttonMesh = this.assets.createBoxMesh('button', 0.25, 0.25, 0.01);
-		this.refreshButton = MRE.Actor.Create(this.context, {
+		const buttonMesh = await this.assets.loadGltf('refreshbutton.glb', 'box');
+		this.refreshButton = MRE.Actor.CreateFromPrefab(this.context, {
+			firstPrefabFrom: buttonMesh,
 			actor: {
 				name: "RefreshButton",
-				appearance: { meshId: buttonMesh.id },
-				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: { 
-						position: { x: -1.2, y: 0, z: 0 } 
+						position: { x: -0.12, y: -(canvasSizeY / resolution) / 2, z: 0 },
+						scale: {x: 0.15, y: 0.15, z: 0.15}
 					}
 				}
 			}
@@ -69,12 +68,11 @@ export default class PostItApp {
 			this.container = null;
 		}
 		// Create a parent object for all the menu items.
-		const containerMesh = this.assets.createBoxMesh('button', containerSizeX, containerSizeY, 0.01);
+		const sizeX = canvasSizeX / resolution;
+		const sizeY = canvasSizeY / resolution;
 		this.container = MRE.Actor.Create(this.context, {
 			actor: {
 				name: "Container",
-				appearance: { meshId: containerMesh.id },
-				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: { 
 						position: { x: 0, y: 0, z: 0 } 
@@ -82,8 +80,21 @@ export default class PostItApp {
 				}
 			}
 		});
+		const containerMesh = this.assets.createBoxMesh('button', sizeX, sizeY, 0.01);
+		const containerBackground = MRE.Actor.Create(this.context, {
+			actor: {
+				name: "Container",
+				parentId: this.container.id,
+				appearance: { meshId: containerMesh.id },
+				collider: { geometry: { shape: MRE.ColliderType.Auto } },
+				transform: {
+					local: { 
+						position: { x: sizeX/2, y: -sizeY/2, z: 0 } 
+					}
+				}
+			}
+		});
 		// Create menu button
-		const postitMesh = this.assets.createBoxMesh('button', postSizeX, postSizeY, 0.01);
 		const section = this.params.section;
 		const rawResponse = await fetch(`${api}/post?section=${section}`, {
 			method: 'GET',
@@ -94,36 +105,77 @@ export default class PostItApp {
 		});
 		const content = await rawResponse.json();
 		const postits = content;
+		const gltf = await this.assets.loadGltf('postit.glb', 'box');
+		//gltf.forEach(g=>console.log(g.mesh?.id));
+		const texture = gltf[2].material.mainTexture;
 
 		// Loop over the hat database, creating a menu item for each entry.
 		for (const post of postits) {
 
-			const postitMaterial = this.assets.createMaterial(post.id, {color: this.hexToRgb(post.color)});
+			const postSizeX = post.size.x/resolution;
+			const postSizeY = post.size.y/resolution;
+
+			const postitMaterial = this.assets.createMaterial(post.id, {
+				color: this.hexToRgb(post.color),
+				mainTextureId: texture.id
+			});
 			// Create a clickable button.
 			const button = MRE.Actor.Create(this.context, {
 				actor: {
 					parentId: this.container.id,
 					name: post.id,
-					appearance: { meshId: postitMesh.id },
-					collider: { geometry: { shape: MRE.ColliderType.Auto } },
+					collider: { 
+						geometry: 
+						{ 
+							shape: MRE.ColliderType.Box, 
+							size: {
+								x: 1, 
+								y: 1, 
+								z: 0.01
+							} 
+						} 
+					},
 					transform: {
 						local: { 
 							position: { 
-								x: (post.position.x / canvasSizeX) - containerSizeX / 2 * 0.85, 
-								y: (-post.position.y / canvasSizeY) + containerSizeY / 2 * 0.85, 
+								x: (post.position.x / resolution) + postSizeX / 2, 
+								y: (-post.position.y / resolution) - postSizeY / 2, 
 								z: -0.01
-							} 
+							},
+							scale: {
+								x: postSizeX,
+								y: postSizeY,
+								z: (postSizeX + postSizeY) / 2
+							}
 						}
 					}
 				}
 			});
-
-			button.appearance.material = postitMaterial;
+			const meshPostit = MRE.Actor.Create(this.context, {
+				actor: {
+					appearance: { meshId: gltf[1].mesh.id, materialId: postitMaterial.id },
+					parentId: button.id,
+					transform: {
+						local: { 
+							scale: {
+								x: 0.5,
+								y: 0.5,
+								z: 0.5
+							},
+							position: {
+								x: 0,
+								y: 0,
+								z: -0.04
+							}
+						}
+					}
+				}
+			})
 
 			// Set a click handler on the button.
 			button.setBehavior(MRE.ButtonBehavior)
 				.onClick(user => {
-					
+					user.prompt(post.text);
 				});
 
 			// Create a label for the menu entry.
@@ -134,12 +186,13 @@ export default class PostItApp {
 					text: {
 						contents: post.text,
 						height: 0.5,
-						anchor: MRE.TextAnchorLocation.TopLeft
+						anchor: MRE.TextAnchorLocation.TopLeft,
+						font: TextFontFamily.Cursive
 					},
 					transform: {
 						local: { 
-							scale: {x: 0.1, y: 0.1, z: 0.1},
-							position: { x: -postSizeX/2 * 0.9, y: postSizeY/2, z: -0.01 } 
+							scale: {x: 0.28, y: 0.28, z: 0.28},
+							position: { x: -0.4, y: 0.4, z: -0.025 }
 						}
 					}
 				}
