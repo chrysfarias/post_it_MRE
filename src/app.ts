@@ -142,11 +142,7 @@ export default class PostItApp {
 
 			const postSizeX = post.size.x/resolution;
 			const postSizeY = post.size.y/resolution;
-
-			const postitMaterial = this.assets.createMaterial(post.id, {
-				color: this.hexToRgb(post.color),
-				mainTextureId: texture.id
-			});
+			const color = this.hexToRgb(post.color)
 			// Create a clickable button.
 			const button = MRE.Actor.Create(this.context, {
 				actor: {
@@ -179,26 +175,74 @@ export default class PostItApp {
 					}
 				}
 			});
-			const meshPostit = MRE.Actor.Create(this.context, {
-				actor: {
-					appearance: { meshId: gltf[1].mesh.id, materialId: postitMaterial.id },
-					parentId: button.id,
-					transform: {
-						local: { 
-							scale: {
-								x: 0.5,
-								y: 0.5,
-								z: 0.5
-							},
-							position: {
-								x: 0,
-								y: 0,
-								z: -0.04
+			if (post.type === "postit")
+			{
+				const postitMaterial = this.assets.createMaterial(post.id, {
+					color: color,
+					mainTextureId: texture.id
+				});
+				MRE.Actor.Create(this.context, {
+					actor: {
+						appearance: { meshId: gltf[1].mesh.id, materialId: postitMaterial.id },
+						parentId: button.id,
+						transform: {
+							local: { 
+								scale: {
+									x: 0.5,
+									y: 0.5,
+									z: 0.5
+								},
+								position: {
+									x: 0,
+									y: 0,
+									z: -0.04
+								}
 							}
 						}
 					}
-				}
-			})
+				})
+				MRE.Actor.Create(this.context, {
+					actor: {
+						parentId: button.id,
+						name: 'label',
+						text: {
+							contents: post.text,
+							height: 0.5,
+							anchor: MRE.TextAnchorLocation.TopLeft,
+							font: TextFontFamily.Cursive
+						},
+						transform: {
+							local: { 
+								scale: {x: 0.28, y: 0.28, z: 0.28},
+								position: { x: -0.4, y: 0.4, z: -0.025 }
+							}
+						}
+					}
+				});
+			}
+			if (post.type === "text"){
+				
+				MRE.Actor.Create(this.context, {
+					actor: {
+						parentId: button.id,
+						name: 'label',
+						text: {
+							contents: post.text,
+							height: 0.5,
+							anchor: MRE.TextAnchorLocation.TopLeft,
+							font: TextFontFamily.Cursive,
+							color: color
+						},
+						transform: {
+							local: { 
+								scale: {x: 0.5, y: 0.5, z: 0.5},
+								position: { x: 0, y: 0, z: -0.02 }
+							}
+						}
+					}
+				});
+			}
+			
 
 			// Set a click handler on the button.
 			button.setBehavior(MRE.ButtonBehavior)
@@ -206,25 +250,6 @@ export default class PostItApp {
 					user.prompt(post.text);
 				});
 
-			// Create a label for the menu entry.
-			MRE.Actor.Create(this.context, {
-				actor: {
-					parentId: button.id,
-					name: 'label',
-					text: {
-						contents: post.text,
-						height: 0.5,
-						anchor: MRE.TextAnchorLocation.TopLeft,
-						font: TextFontFamily.Cursive
-					},
-					transform: {
-						local: { 
-							scale: {x: 0.28, y: 0.28, z: 0.28},
-							position: { x: -0.4, y: 0.4, z: -0.025 }
-						}
-					}
-				}
-			});
 		}
 
 	}
