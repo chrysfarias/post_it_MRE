@@ -51,7 +51,7 @@ export default class PostItApp {
 		buttonBehavior.onClick(_ => {
 			this.refresh();
 		});
-		const backgroundButtonMesh = this.assets.createBoxMesh("box", 0.15, 0.15, 0.01);
+		const backgroundButtonMesh = this.assets.createBoxMesh("box", 0.06, 0.06, 0.01);
 		const backgroundButton = MRE.Actor.Create(this.context, {
 			actor: {
 				appearance: {
@@ -61,7 +61,7 @@ export default class PostItApp {
 				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: {
-						position: { x: -0.12, y: this.refreshButton.transform.local.position.y - 0.15, z: 0}
+						position: { x: -0.12, y: this.refreshButton.transform.local.position.y + 0.08, z: 0}
 					}
 				}
 			}
