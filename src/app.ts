@@ -30,6 +30,7 @@ export default class PostItApp {
 		const colorBlue = new MRE.Color4(0.20,0.51,0.92,1);
 		// set up somewhere to store loaded assets (meshes, textures, animations, gltfs, etc.)
 		this.assets = new MRE.AssetContainer(this.context);
+		const btnMaterial = this.assets.createMaterial("btn", {color: colorBlue});
 
 		//RefreshButton
 		const buttonMesh = await this.assets.loadGltf('refreshbutton.glb', 'box');
@@ -52,7 +53,10 @@ export default class PostItApp {
 		const backgroundButtonMesh = this.assets.createBoxMesh("box", 0.15, 0.15, 0.01);
 		const backgroundButton = MRE.Actor.Create(this.context, {
 			actor: {
-				appearance: {meshId: backgroundButtonMesh.id},
+				appearance: {
+					meshId: backgroundButtonMesh.id,
+					materialId: btnMaterial.id
+				},
 				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: {
@@ -61,13 +65,13 @@ export default class PostItApp {
 				}
 			}
 		})
-		backgroundButton.appearance.material.color = colorBlue;
+		btnMaterial.color = colorBlue;
 		const backgroundButtonBehavior = backgroundButton.setBehavior(MRE.ButtonBehavior);
 		backgroundButtonBehavior.onClick(_ => {
 			if (this.container !== null)
 			{
 				this.container.appearance.enabled = !this.container.appearance.enabled;
-				backgroundButton.appearance.material.color = this.container.appearance.enabled ? colorBlue : colorWhite;
+				btnMaterial.color = this.container.appearance.enabled ? colorBlue : colorWhite;
 			}
 		});
 		this.refresh();
