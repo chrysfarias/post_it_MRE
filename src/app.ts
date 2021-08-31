@@ -53,9 +53,10 @@ export default class PostItApp {
 		const backgroundButton = MRE.Actor.Create(this.context, {
 			actor: {
 				appearance: {meshId: backgroundButtonMesh.id},
+				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: {
-						position: { x: -0.12, y: this.refreshButton.transform.local.position.y - 0.12, z: 0}
+						position: { x: -0.12, y: this.refreshButton.transform.local.position.y - 0.15, z: 0}
 					}
 				}
 			}
