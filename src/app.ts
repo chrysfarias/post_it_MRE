@@ -26,6 +26,8 @@ export default class PostItApp {
 	 * Once the context is "started", initialize the app.
 	 */
 	private async started() {
+		const colorWhite = new MRE.Color4(1,1,1,1);
+		const colorBlue = new MRE.Color4(0.20,0.51,0.92,1);
 		// set up somewhere to store loaded assets (meshes, textures, animations, gltfs, etc.)
 		this.assets = new MRE.AssetContainer(this.context);
 
@@ -46,6 +48,26 @@ export default class PostItApp {
 		const buttonBehavior = this.refreshButton.setBehavior(MRE.ButtonBehavior);
 		buttonBehavior.onClick(_ => {
 			this.refresh();
+		});
+		const backgroundButtonMesh = this.assets.createBoxMesh("box", 0.15, 0.15, 0.01);
+		const backgroundButton = MRE.Actor.Create(this.context, {
+			actor: {
+				appearance: {meshId: backgroundButtonMesh.id},
+				transform: {
+					local: {
+						position: { x: -0.12, y: this.refreshButton.transform.local.position.y - 0.12, z: 0}
+					}
+				}
+			}
+		})
+		backgroundButton.appearance.material.color = colorBlue;
+		const backgroundButtonBehavior = backgroundButton.setBehavior(MRE.ButtonBehavior);
+		backgroundButtonBehavior.onClick(_ => {
+			if (this.container !== null)
+			{
+				this.container.appearance.enabled = !this.container.appearance.enabled;
+				backgroundButton.appearance.material.color = this.container.appearance.enabled ? colorBlue : colorWhite;
+			}
 		});
 		this.refresh();
 	}
