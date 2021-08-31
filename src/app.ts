@@ -61,7 +61,7 @@ export default class PostItApp {
 				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: {
-						position: { x: -0.12, y: this.refreshButton.transform.local.position.y + 0.08, z: 0}
+						position: { x: -0.12, y: this.refreshButton.transform.local.position.y + 0.1, z: 0}
 					}
 				}
 			}
