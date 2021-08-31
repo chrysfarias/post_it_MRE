@@ -16,6 +16,7 @@ const resolution = 600;
 export default class PostItApp {
 	private refreshButton: MRE.Actor = null;
 	private container: MRE.Actor = null;
+	private containerBackground: MRE.Actor = null;
 	private assets: MRE.AssetContainer;
 
 	constructor(private context: MRE.Context, private params: MRE.ParameterSet) {
@@ -68,10 +69,10 @@ export default class PostItApp {
 		btnMaterial.color = colorBlue;
 		const backgroundButtonBehavior = backgroundButton.setBehavior(MRE.ButtonBehavior);
 		backgroundButtonBehavior.onClick(_ => {
-			if (this.container !== null)
+			if (this.containerBackground !== null)
 			{
-				this.container.appearance.enabled = !this.container.appearance.enabled;
-				btnMaterial.color = this.container.appearance.enabled ? colorBlue : colorWhite;
+				this.containerBackground.appearance.enabled = !this.containerBackground.appearance.enabled;
+				btnMaterial.color = this.containerBackground.appearance.enabled ? colorBlue : colorWhite;
 			}
 		});
 		this.refresh();
@@ -108,7 +109,7 @@ export default class PostItApp {
 			}
 		});
 		const containerMesh = this.assets.createBoxMesh('button', sizeX, sizeY, 0.01);
-		const containerBackground = MRE.Actor.Create(this.context, {
+		this.containerBackground = MRE.Actor.Create(this.context, {
 			actor: {
 				name: "Container",
 				parentId: this.container.id,
