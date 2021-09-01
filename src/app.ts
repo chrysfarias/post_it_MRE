@@ -247,7 +247,7 @@ export default class PostItApp {
 			// Set a click handler on the button.
 			button.setBehavior(MRE.ButtonBehavior)
 				.onClick(user => {
-					user.prompt(post.text);
+					user.prompt(`${post.text}\n\n${post.description}`);
 				});
 
 		}
