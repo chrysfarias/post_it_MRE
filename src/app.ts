@@ -86,6 +86,35 @@ export default class PostItApp {
 			parseInt(result[3], 16)/ 255,
 			1): null;
 	}
+	private wordWrap(str: string, maxWidth: number) {
+		let newLineStr = "\n";
+		let done = false;
+		let res = '';
+		while (str.length > maxWidth) {                 
+			let found = false;
+			// Inserts new line at first whitespace of the line
+			for (let i = maxWidth - 1; i >= 0; i--) {
+				if (this.testWhite(str.charAt(i))) {
+					res = res + [str.slice(0, i), newLineStr].join('');
+					str = str.slice(i + 1);
+					found = true;
+					break;
+				}
+			}
+			// Inserts new line at maxWidth position, the word is too long to wrap
+			if (!found) {
+				res += [str.slice(0, maxWidth), newLineStr].join('');
+				str = str.slice(maxWidth);
+			}
+	
+		}
+	
+		return res + str;
+	}
+	
+	private testWhite(x: string) {
+		return /^\s$/u.exec(x.charAt(0));
+	}
 	/**
  	* Show a menu of hat selections.
  	*/
@@ -195,23 +224,24 @@ export default class PostItApp {
 								scale: {
 									x: 0.5,
 									y: 0.5,
-									z: 0.5
+									z: 0.25
 								},
 								position: {
 									x: 0,
 									y: 0,
-									z: -0.04
+									z: -0.02
 								}
 							}
 						}
 					}
 				})
+				const text = this.wordWrap(post.text, 13);
 				MRE.Actor.Create(this.context, {
 					actor: {
 						parentId: button.id,
 						name: 'label',
 						text: {
-							contents: post.text,
+							contents: text,
 							height: 0.5,
 							anchor: MRE.TextAnchorLocation.TopLeft,
 							font: TextFontFamily.Cursive
@@ -219,7 +249,7 @@ export default class PostItApp {
 						transform: {
 							local: { 
 								scale: {x: 0.28, y: 0.28, z: 0.28},
-								position: { x: -0.4, y: 0.4, z: -0.025 }
+								position: { x: -0.4, y: 0.4, z: -0.03 }
 							}
 						}
 					}
