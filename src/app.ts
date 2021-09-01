@@ -90,7 +90,7 @@ export default class PostItApp {
  	* Show a menu of hat selections.
  	*/
 	private async refresh() {
-		var showingBackground = true;
+		let showingBackground = true;
 		if (this.container !== null)
 		{
 			showingBackground = this.containerBackground.appearance.enabled as boolean;
