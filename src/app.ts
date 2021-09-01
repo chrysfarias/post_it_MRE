@@ -90,8 +90,10 @@ export default class PostItApp {
  	* Show a menu of hat selections.
  	*/
 	private async refresh() {
+		var showingBackground = true;
 		if (this.container !== null)
 		{
+			showingBackground = this.containerBackground.appearance.enabled as boolean;
 			this.container.destroy();
 			this.container = null;
 		}
@@ -113,7 +115,10 @@ export default class PostItApp {
 			actor: {
 				name: "Container",
 				parentId: this.container.id,
-				appearance: { meshId: containerMesh.id },
+				appearance: { 
+					meshId: containerMesh.id,
+					enabled: showingBackground
+				},
 				collider: { geometry: { shape: MRE.ColliderType.Auto } },
 				transform: {
 					local: { 
